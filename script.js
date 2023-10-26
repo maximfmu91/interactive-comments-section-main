@@ -88,7 +88,6 @@ xhr.onreadystatechange = function () {
               
     
           if (localStorageMessage.parentId) {
-            // Найти родительский комментарий
             let parentComment = document.querySelector(`[data-id="${localStorageMessage.parentId}"]`);
     
             if (parentComment) {
@@ -96,7 +95,6 @@ xhr.onreadystatechange = function () {
               let replyMessageContainer = parentContainer.querySelector('.reply-message-container');
     
               if (!replyMessageContainer) {
-                // Если reply-message-container не существует, создайте его
                 replyMessageContainer = document.createElement('div');
                 replyMessageContainer.className = 'reply-message-container';
                 parentContainer.appendChild(replyMessageContainer);
