@@ -3,7 +3,7 @@
 
    html {
     font-size: 62.5%;
-    background-color: hsl(223, 19%, 93%);
+    background-color: hsl(228, 33%, 97%);
    }
 
    * {
@@ -43,6 +43,12 @@
   .user-message-container {
     display: flex;
     flex-direction: column;
+  }
+
+  .reply-message-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
   }
 
   .user-message,  .reply-message  {
@@ -247,6 +253,16 @@
       width: 88%;
       margin-left: auto;
     }
+
+     .reply-message-container::before {
+      content: "";
+      position: absolute;
+      left: 40px;
+      top: 0;
+      width: 3px; 
+      height: 93%; 
+      background-color: hsl(223, 19%, 93%);
+     } 
 
 
     .user-rating-container {
@@ -481,6 +497,11 @@
     .modal-button {
       width: 138px;
     }
+
+    .button-block {
+      margin-bottom: 24px;
+    }
+  }
 
     .button-block {
       margin-bottom: 24px;
