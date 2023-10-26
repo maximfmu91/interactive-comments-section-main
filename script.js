@@ -37,7 +37,6 @@ xhr.onreadystatechange = function () {
         commentContent = message.querySelector('p').textContent;
       }
 
-      
       let commentData = {
        messageId: `message_${Date.now()}`, 
        CurrentUserName: message.querySelector('.user-name').textContent,
@@ -50,15 +49,12 @@ xhr.onreadystatechange = function () {
        parentId: message.getAttribute('data-parent-id'),
       };
 
-
-
       storedMessages = getLocalMessages();
       if (typeof storedMessages === 'object' && !Array.isArray(storedMessages)) {
         storedMessages = [];
       } else {
         storedMessages.push(commentData);
       }
-
 
       let jsonMessages = JSON.stringify(storedMessages);
       localStorage.setItem('myMessages', jsonMessages);
@@ -77,71 +73,87 @@ xhr.onreadystatechange = function () {
 
 
     function loadMessageFromLocalStorage() {
-
       let localStorageMessages = getLocalMessages();
-
+    
       if (localStorageMessages && localStorageMessages.length > 0) {
         for (let localStorageMessage of localStorageMessages) {
-          let userMessageContainer = document.createElement('div');
-          userMessageContainer.className = 'user-message-container';
           let messageSendTime = new Date(localStorageMessage.messageSendTime);
           let currentTime = new Date();
           let timeDifference = currentTime - messageSendTime;
           let timeAgo = formatTimeDifference(timeDifference);
-          
-          if (localStorageMessage.parentId) {
-            let parentMessage = document.querySelector(`[data-id="${localStorageMessage.parentId}"]`);
-            let replyMessageContainer = parentMessage.parentNode;
+          let userMessageContainer = document.createElement('div');
+          userMessageContainer.className = 'user-message-container';
 
-          if (parentMessage) {
-           
-            let replyMessage = createMessage(
+              
+              
+    
+          if (localStorageMessage.parentId) {
+            // Найти родительский комментарий
+            let parentComment = document.querySelector(`[data-id="${localStorageMessage.parentId}"]`);
+    
+            if (parentComment) {
+              let parentContainer = parentComment.closest('.user-message-container');
+              let replyMessageContainer = parentContainer.querySelector('.reply-message-container');
+    
+              if (!replyMessageContainer) {
+                // Если reply-message-container не существует, создайте его
+                replyMessageContainer = document.createElement('div');
+                replyMessageContainer.className = 'reply-message-container';
+                parentContainer.appendChild(replyMessageContainer);
+              }
+    
+              let replyMessage = createMessage(
+                localStorageMessage.CurrentUserName,
+                localStorageMessage.commentText,
+                localStorageMessage.userAvatar,
+                timeAgo,
+                localStorageMessage.commentScore,
+                localStorageMessage.replyTo,
+                localStorageMessage.messageId,
+                localStorageMessage.parentId
+              );
+    
+              if (localStorageMessage.CurrentUserName === response.currentUser.username) {
+                replyMessage.querySelector('.reply-word').textContent = 'Edit';
+                replyMessage.querySelector('.reply-arrow').src = './images/icon-edit.svg';
+    
+                editNewMessages(replyMessage);
+                addDeleteButton(replyMessage, localStorageMessage.messageId);
+              }
+    
+              replyMessage.classList.add('reply-message');
+              replyMessageContainer.appendChild(replyMessage);
+            } 
+
+          } else {
+            let myNewMessage = createMessage(
               localStorageMessage.CurrentUserName,
               localStorageMessage.commentText,
-              localStorageMessage.userAvatar, 
+              localStorageMessage.userAvatar,
               timeAgo,
               localStorageMessage.commentScore,
-              localStorageMessage.replyTo,
-              localStorageMessage.messageId,
-              localStorageMessage.parentId,
+              '',
+              localStorageMessage.messageId
             );
-
+    
             if (localStorageMessage.CurrentUserName === response.currentUser.username) {
-              replyMessage.querySelector('.reply-word').textContent = 'Edit';
-              replyMessage.querySelector('.reply-arrow').src ='./images/icon-edit.svg';
-  
-              editNewMessages(replyMessage);
-              addDeleteButton(replyMessage, localStorageMessage.messageId);
-          } 
-
-            replyMessage.classList.add('reply-message');
-            replyMessageContainer.appendChild(replyMessage);
-          } 
-         
-        } else {
-          let myNewMessage = createMessage(
-            localStorageMessage.CurrentUserName,
-            localStorageMessage.commentText,
-            localStorageMessage.userAvatar, 
-            timeAgo,
-            localStorageMessage.commentScore,
-            '',
-            localStorageMessage.messageId,
-          );
-          if (localStorageMessage.CurrentUserName === response.currentUser.username) {
-            myNewMessage.querySelector('.reply-word').textContent = 'Edit';
-            myNewMessage.querySelector('.reply-arrow').src ='./images/icon-edit.svg';
-
-            editNewMessages(myNewMessage);
-            addDeleteButton(myNewMessage, localStorageMessage.messageId);
-        } 
-        if(myNewMessage.className === 'user-message')
-          userMessageContainer.appendChild(myNewMessage);
-          commentSection.appendChild(userMessageContainer);
+              myNewMessage.querySelector('.reply-word').textContent = 'Edit';
+              myNewMessage.querySelector('.reply-arrow').src = './images/icon-edit.svg';
+    
+              editNewMessages(myNewMessage);
+              addDeleteButton(myNewMessage, localStorageMessage.messageId);
+            }
+    
+            if (myNewMessage.className === 'user-message') {
+              userMessageContainer.appendChild(myNewMessage);
+              commentSection.appendChild(userMessageContainer);
+            }
+          }
         }
-      }   
+      }
     }
-  }
+
+
 
     function commentForm(className) {
       let addCommentForm = document.createElement('form');
@@ -228,6 +240,7 @@ xhr.onreadystatechange = function () {
         mySignSpan.textContent = 'you';
         mySignLi.appendChild(mySignSpan);
         userInfoUl.appendChild(mySignLi);
+
  } 
 
       userInfoUl.appendChild(messageSendTimeLi);
@@ -516,10 +529,15 @@ xhr.onreadystatechange = function () {
       });
     }
 
+
+
+
     for (let comment of comments) {
 
       let userMessageContainer = document.createElement('div');
       userMessageContainer.className = 'user-message-container';
+      let replyMessageContainer = document.createElement('div');
+      replyMessageContainer.className = 'reply-message-container';
 
       let pageMessage = createMessage( `${comment.user.username}`, `${comment.content}`,  `${comment.user.image.png}`, `${comment.createdAt}`, `${comment.score}`,``, `${comment.id}`);
       userMessageContainer.appendChild(pageMessage);
@@ -546,8 +564,9 @@ xhr.onreadystatechange = function () {
             editNewMessages(replyMessage);
             addDeleteButton(replyMessage);
           } 
-
-        userMessageContainer.appendChild(replyMessage);   
+          
+        replyMessageContainer.appendChild(replyMessage)
+        userMessageContainer.appendChild(replyMessageContainer);   
 
         }
       }
@@ -563,6 +582,8 @@ xhr.onreadystatechange = function () {
     
             let userMessage = replyButton.closest('.user-message');
             let userMessageContainer = userMessage.closest('.user-message-container');
+            let replyMessageContainer = document.createElement('div');
+            replyMessageContainer.className = 'reply-message-container';
             let replyForm = commentForm('reply-form');
             let replyTextarea = replyForm.querySelector('.comment-textform');
             let username = userMessage.querySelector('.user-name').textContent;
@@ -600,7 +621,8 @@ xhr.onreadystatechange = function () {
                 myMessage.querySelector('.reply-word').textContent = 'Edit';       
                 myMessage.querySelector('.reply-arrow').src ='./images/icon-edit.svg';
                 myMessage.querySelector('.message-send-time').textContent = sendTime(messageSendTimes[messageId]);
-                userMessageContainer.appendChild(myMessage);
+                replyMessageContainer.appendChild(myMessage);
+                userMessageContainer.appendChild(replyMessageContainer);
                 commentTextform.value = '';
                 replyForm.remove();
 
@@ -623,6 +645,7 @@ xhr.onreadystatechange = function () {
 }
 
 xhr.send();
+
 
 
 
