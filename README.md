@@ -4,7 +4,7 @@ This is a solution to the [interactive-comments-section-main challenge on Fronte
 
 ### Screenshot
 
-![](./assets/images/Screenshot.png)
+![](./images/Screenshot.png)
 
 ### The challenge
 
@@ -18,7 +18,7 @@ Your users should be able to:
 - **Bonus**: Instead of using the `createdAt` strings from the `data.json` file, try using timestamps and dynamically track the time since the comment or reply was posted.
 
 
-- [Add live site URL here]()
+- [Add live site URL here](https://maximfmu91.github.io/interactive-comments-section-main/)
 
 
 ### Built with
