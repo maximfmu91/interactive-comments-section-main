@@ -221,11 +221,13 @@ xhr.onreadystatechange = function () {
       userInfoUl.appendChild(userNameLi);
 
       if (userName === response.currentUser.username) {
+        let mySignLi = document.createElement('li');
+        mySignLi.className = 'my-sign-element';
         let mySignSpan = document.createElement('span');
         mySignSpan.className = 'my-sign';
         mySignSpan.textContent = 'you';
-        userInfoUl.appendChild(mySignSpan);
-
+        mySignLi.appendChild(mySignSpan);
+        userInfoUl.appendChild(mySignLi);
  } 
 
       userInfoUl.appendChild(messageSendTimeLi);
